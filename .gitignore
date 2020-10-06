@@ -1,2 +1,4 @@
 config.py
 ImageDump
+.DS*
+__pycache__

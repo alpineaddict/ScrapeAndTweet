@@ -91,7 +91,7 @@ if __name__ == '__main__':
                             config.access_token,
                             config.access_token_secret
     )
-    FILEPATH = "/home/ross/AllThingsPython/MyDev/ScrapeAndTweet/ImageDump/"
+    FILEPATH = "/home/ross/AllThingsPython/MyDev/scrape-and-tweet/ImageDump/"
 
     navigate_to_image_repository(FILEPATH)
     tweepy_tweet.tweet_image()
