@@ -1,0 +1,4 @@
+tweepy
+send2trash
+bs4
+requests
