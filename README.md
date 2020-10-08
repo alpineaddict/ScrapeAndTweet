@@ -10,13 +10,13 @@ Image downloader will run through a user prompt to inquire of what types of imag
 scrape_and_tweet will authenticate to the soomanypugs account, navigate to the image repository and then tweet a random pug image. Once successfully tweeted, the file will be deleted.
 
 ### image_downloader.py:  
-![](markdown-screenshots/screenshot1.png)  
+![](/markdown-screenshots/screenshot1.png)  
 
 ### tweepy_image_tweeter.py:
-![](markdown-screenshots/screenshot2.png)
+![](/markdown-screenshots/screenshot2.png)
 
 ### [@soomanypugs][soomanypugs]:  
-![](markdown-screenshots/screenshot3.png)
+![](/markdown-screenshots/screenshot3.png)
 
 ## Environment Setup
 1. Install Python (Linux-oriented)  
