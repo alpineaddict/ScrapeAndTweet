@@ -9,9 +9,10 @@ import bs4
 import requests
 import unittest
 import pytest
-from ../image_downloader import create_repository
 from unittest.mock import Mock, patch
 from pytest import mark
+
+from app.image_downloader import user_prompt
 
 def test_can_create_repository():
     test_path = '/home/ross/AllThingsPython/MyDev/scrape-and-tweet/test-dir'

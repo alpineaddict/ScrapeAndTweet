@@ -1,5 +1,10 @@
 config.py
 ImageDump
 .DS*
-__pycache__
+*__pycache__
 pytest/*ini
+*init*
+env*
+.git
+.vscode
+.vscode*
