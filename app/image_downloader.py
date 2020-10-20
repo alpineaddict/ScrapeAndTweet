@@ -2,7 +2,7 @@
 
 """
 Prompt user for a type of image to search for, the navigate to search engine
-and download first 4 pages of images from search results to dump directory.
+and download first 4 pages of images from search responseults to dump directory.
 Search engine: https://depositphotos.com/
 """
 
@@ -17,7 +17,7 @@ def user_prompt():
     Prompt user to search for a set of images, and choose where to store them.
     """
 
-    image_to_search = input('\nWhat do you want to search for?\nImage search: ')
+    image_to_search = input('What do you want to search for?\nImage search: ')
     filepath = input('Where would you like to store the files? \n'
     'Example: /home/bill/imageFiles/\nPath: ')
 
@@ -34,24 +34,24 @@ def create_repository(filepath):
 
 def image_scrape(image_to_search):
     """
-    Accept URL as parameter and download roughly 300-400 images (4 pages)
-    from search results.
+    Accept URL as parameter and download roughly 300-400 images (4 pages) from
+    search responseults.
     """
 
     page_index = 0
     image_list = []
-    for iter in range(4):
+    for iter in range(4):   # needs to loop 4 times because ~100 imgs per page
         website_url =(f'https://depositphotos.com/stock-photos/{image_to_search}'
         f'.html?offset={page_index}')
-        res = requests.get(website_url)
-        res.raise_for_status()
-        soup = bs4.BeautifulSoup(res.text, 'html.parser')
+        response = requests.get(website_url)
+        response.raise_for_status()
+        soup = bs4.BeautifulSoup(response.text, 'html.parser')
 
         # Scrapes 100 images (different source tags). Add objects to list
-        images_regular  = soup.find_all('img', attrs={'class':
-                                'file-container__image _file-image'})
-        images_lazy_load = soup.find_all('img', attrs={'class':
-                                'file-container__image _file-image lazyload'})
+        images_regular = soup.find_all('img', attrs={
+            'class':'file-container__image _file-image'})
+        images_lazy_load = soup.find_all('img', attrs={
+            'class':'file-container__image _file-image lazyload'})
         for image in images_regular:
             image_list.append(image.get('src'))
         for image in images_lazy_load:

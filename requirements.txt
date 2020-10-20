@@ -3,4 +3,4 @@ send2trash
 bs4
 requests
 pytest
-pytest-mock
+mock
