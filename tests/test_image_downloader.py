@@ -1,86 +1,45 @@
 """
-Pytest test file to test functions of image downloading script.
+Unittest based test framework for functions in app.image_downloader.py
 """
 
-# TODO: implement fixture decorators
-# TODO: Potentially remove some import statements
+# CONSTANTS
+TEMP_FILEPATH = '/home/ross/AllThingsPython/MyDev/scrape_and_tweet/temp_dir'
 
 import os
 import bs4
 import requests
 import pytest
-import send2trash
-from unittest.mock import Mock, patch
-from pytest import mark, fixture
-from app.image_downloader import *
-from selenium import webdriver
+import unittest
+from unittest import mock, TestCase
+from unittest.mock import patch
+from app.image_downloader import image_scrape, create_repository
 
+# TODO: add user prompt test?
 
-# chrome_browser = webdriver.Chrome()
-
-def test_can_create_repository(test_directory):
+class test_image_repository(TestCase):
     """
-    Test that an image repository can be created within directory structure.
-    Then delete the directory and verify it no longer exists.
-    """
-
-    create_repository(test_directory)
-    assert os.path.exists(test_directory)
-    os.rmdir(test_directory)
-    assert not os.path.exists(test_directory)
-
-def test_can_chdir_to_repository(test_directory):
-    """
-    Test for success of changing into image repository.
+    Run image_downloader.create_repository() func, which will also chdir to    
+    directory. Test that directory was created and is current working dir.
+    Delete directory when finished.
     """
 
-    create_repository(test_directory)
-    assert os.path.exists(test_directory)
-    current_dir = os.getcwd()
-    assert current_dir == test_directory
-    os.rmdir(test_directory)
-    assert not os.path.exists(test_directory)
+    def setUp(self):
+        print('Running setUp.')
 
-def test_website_url_validity(search_engine_url):
-    """
-    Verify that navigating to search engine URL responseponds with status code 200.
-    """
-    
-    mock = Mock()
-    requests = mock
-    response = requests.get(search_engine_url)
-    response.status_code = 200
-    assert response.status_code == 200
+    def test_can_create_image_repository(self):
+        create_repository(TEMP_FILEPATH)
+        self.assertEqual(os.getcwd(), TEMP_FILEPATH)
 
-def test_image_search(search_engine_url, image_to_search_for):
-    """
-    Verify that search engine returns responseults.
-    """
-    image_list = []
-    image_search = search_engine_url + image_to_search_for
-    response = requests.get(image_search)
-    soup = bs4.BeautifulSoup(response.text, 'html.parser')
-    image_results = soup.find_all('img', attrs={
-        'class':'file-container__image _file-image'})
-    for image in image_results:
-        image_list.append(image.get('src'))
-    
-    assert len(image_list) >= 5
-    # print(f"length of image_list: {len(image_list)}")
-    # print(f"image_list results: {image_list}")
- 
-search_engine_url = "https://depositphotos.com/stock-photos/"
-image_to_search_for = "funny pugs"
-test_image_search(search_engine_url, image_to_search_for)
+    def tearDown(self):
+        print('Running tearDown.')
+        os.chdir('..')
+        os.rmdir(TEMP_FILEPATH)
+        self.assertNotIn(TEMP_FILEPATH, os.listdir())
 
-# def test_image_search_returns_responseults():
-#     pass
+class test_image_scrape(TestCase):
+    pass
 
-# def test_image_scrape(image_to_search):
-#     pass
 
-# def image_download():
-#     pass
+if __name__ == '__main__':
+    unittest.main()
 
-# def test_delete_zero_byte_images():
-#     pass

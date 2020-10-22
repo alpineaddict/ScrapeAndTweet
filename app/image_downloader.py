@@ -2,15 +2,18 @@
 
 """
 Prompt user for a type of image to search for, the navigate to search engine
-and download first 4 pages of images from search responseults to dump directory.
+and download first 4 pages of images from search results to dump directory.
 Search engine: https://depositphotos.com/
 """
 
 import os
+import sys
 import bs4
 import requests
+from requests.exceptions import InvalidURL, Timeout
 
-# TODO: Add more error handling functionality
+# CONSTANTS
+IMAGE_SEARCH_ENGINE_URL = 'https://depositphotos.com/stock-photos/'
 
 def user_prompt():
     """
@@ -32,57 +35,70 @@ def create_repository(filepath):
     os.makedirs(filepath, exist_ok=True)
     os.chdir(filepath)
 
-def image_scrape(image_to_search):
+def navigate_to_image_search_engine_url(
+        image_search_engine_url,
+        image_to_search,
+        page_index=1
+    ):
     """
-    Accept URL as parameter and download roughly 300-400 images (4 pages) from
-    search responseults.
+    Accept image search engine, image to search and page index as paramaters.
+    Format URL based off of parameters. Return HTML parsed BeautifulSoup object
+    for image search. Soup object will contain references to ~100 images.
     """
 
-    page_index = 0
-    image_list = []
-    for iter in range(4):   # needs to loop 4 times because ~100 imgs per page
-        website_url =(f'https://depositphotos.com/stock-photos/{image_to_search}'
-        f'.html?offset={page_index}')
-        response = requests.get(website_url)
-        response.raise_for_status()
+    full_url = (
+        f'{image_search_engine_url}{image_to_search}.html?offset={page_index}'
+    )
+
+    try:
+        response = requests.get(full_url)
         soup = bs4.BeautifulSoup(response.text, 'html.parser')
+        return soup
+    except InvalidURL:
+        print('URL provided is not valid.\nExiting program. Please try again.')
+        sys.exit()
+    except Timeout:
+        print('Timeout encountered. Exiting program. Please try again.')
+        sys.exit()
 
-        # Scrapes 100 images (different source tags). Add objects to list
-        images_regular = soup.find_all('img', attrs={
-            'class':'file-container__image _file-image'})
-        images_lazy_load = soup.find_all('img', attrs={
-            'class':'file-container__image _file-image lazyload'})
-        for image in images_regular:
-            image_list.append(image.get('src'))
-        for image in images_lazy_load:
-            image_list.append(image.get('data-src'))
-        page_index += 100
+def image_scrape_urls_to_list(soup):
+    """
+    Accept beautifulsoup object as paramater. Scrape object for image urls and
+    append to a list. Return list.
+    """
+
+    images_regular = soup.find_all('img', attrs={
+        'class':'file-container__image _file-image'})
+    images_lazy_load = soup.find_all('img', attrs={
+        'class':'file-container__image _file-image lazyload'})
+    image_list = []
+    for image in images_regular:
+        image_list.append(image.get('src'))
+    for image in images_lazy_load:
+        image_list.append(image.get('data-src'))
+
     return image_list
 
-def delete_zero_byte_images(filepath):
+def image_download(image_list):
+    """
+    Accept image list and filepath as parameters. Iterate through list and
+    download each item to working dir, which will be image_dump repository.
+    """
+
+    for image in image_list:
+        if "http" in image:
+            with open(os.path.basename(image), "wb") as file:
+                file.write(requests.get(image).content)
+
+def delete_zero_byte_images():
     """
     Delete images that are zero bytes in size in the event they were
     downloaded by mistake.
     """
 
-    for file in os.listdir(filepath):
+    for file in os.listdir():
         if os.path.getsize(file) == 0:
             os.remove(file)
-
-def image_download(image_list, filepath):
-    """
-    Scrape images and download to specified file path.
-    Delete any zero byte files.
-    """
-
-    print('Downloading images. This may take a few minutes...')
-    for image in image_list:
-        if "http" in image:
-            with open(os.path.basename(image), "wb") as f:
-                f.write(requests.get(image).content)
-    print('-' * 50)
-    delete_zero_byte_images(filepath)
-    print('\nDownload finished! Exiting program.')
 
 
 if __name__ == "__main__":
@@ -92,8 +108,17 @@ if __name__ == "__main__":
             'of your choice.')
     image_to_search, filepath = user_prompt()
     create_repository(filepath)
-    image_list = image_scrape(image_to_search)
-    image_download(image_list, filepath)
+
+    # run loop 4 times as each soup object only contains about ~100 images
+    print('Downloading images. This may take a few minutes...')
+    for iter in range(1,5):
+        soup = navigate_to_image_search_engine_url(
+            IMAGE_SEARCH_ENGINE_URL, image_to_search, iter
+        )
+        image_list = image_scrape_urls_to_list(soup)
+        image_download(image_list)
+    delete_zero_byte_images()
+    print('-' * 50,'\nDownload finished! Exiting program.')
 
 # Easy copy and paste for image repo:
-# /home/ross/AllThingsPython/MyDev/ScrapeAndTweet/ImageDump/
+# /home/ross/AllThingsPython/MyDev/scrape_and_tweet/image_dump/
