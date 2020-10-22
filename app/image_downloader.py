@@ -109,9 +109,9 @@ if __name__ == "__main__":
     image_to_search, filepath = user_prompt()
     create_repository(filepath)
 
-    # run loop 4 times as each soup object only contains about ~100 images
+    # run loop 4 times; offset needs to increase in increments of 100
     print('Downloading images. This may take a few minutes...')
-    for iter in range(1,5):
+    for iter in range(0, 400, 100):
         soup = navigate_to_image_search_engine_url(
             IMAGE_SEARCH_ENGINE_URL, image_to_search, iter
         )
