@@ -42,8 +42,7 @@ def navigate_to_image_search_engine_url(
     ):
     """
     Accept image search engine, image to search and page index as paramaters.
-    Format URL based off of parameters. Return HTML parsed BeautifulSoup object
-    for image search. Soup object will contain references to ~100 images.
+    Format URL based off of parameters.
     """
 
     full_url = (
@@ -51,9 +50,9 @@ def navigate_to_image_search_engine_url(
     )
 
     try:
-        response = requests.get(full_url)
-        soup = bs4.BeautifulSoup(response.text, 'html.parser')
-        return soup
+        response_from_request = requests.get(full_url)
+        if response_from_request.raise_for_status() == None:
+            return response_from_request
     except InvalidURL:
         print('URL provided is not valid.\nExiting program. Please try again.')
         sys.exit()
@@ -61,7 +60,14 @@ def navigate_to_image_search_engine_url(
         print('Timeout encountered. Exiting program. Please try again.')
         sys.exit()
 
-def image_scrape_urls_to_list(soup):
+def create_beautifulsoup_object(response_from_request):
+    """
+    Return html-parsed BeautifulSoup object
+    for image search. Soup object will contain references to ~100 images.    """
+
+    return bs4.BeautifulSoup(response_from_request.text, 'html.parser')
+
+def scrape_image_urls_and_append_to_list(soup):
     """
     Accept beautifulsoup object as paramater. Scrape object for image urls and
     append to a list. Return list.
@@ -79,7 +85,7 @@ def image_scrape_urls_to_list(soup):
 
     return image_list
 
-def image_download(image_list):
+def download_images(image_list):
     """
     Accept image list and filepath as parameters. Iterate through list and
     download each item to working dir, which will be image_dump repository.
@@ -105,18 +111,19 @@ if __name__ == "__main__":
     print('Welcome to Image Downloader!')
     print('Image search engine: depositphotos.com')
     print('Image Downloader will download 4 pages of images from the search'
-            'of your choice.')
+            ' of your choice.')
     image_to_search, filepath = user_prompt()
     create_repository(filepath)
 
     # run loop 4 times; offset needs to increase in increments of 100
     print('Downloading images. This may take a few minutes...')
     for iter in range(0, 400, 100):
-        soup = navigate_to_image_search_engine_url(
+        response_from_request = navigate_to_image_search_engine_url(
             IMAGE_SEARCH_ENGINE_URL, image_to_search, iter
         )
-        image_list = image_scrape_urls_to_list(soup)
-        image_download(image_list)
+        soup = create_beautifulsoup_object(response_from_request)
+        image_list = scrape_image_urls_and_append_to_list(soup)
+        download_images(image_list)
     delete_zero_byte_images()
     print('-' * 50,'\nDownload finished! Exiting program.')
 
