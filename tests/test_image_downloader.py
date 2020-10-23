@@ -7,18 +7,21 @@ import bs4
 import requests
 import pytest
 import unittest
-from requests.exceptions import MissingSchema, InvalidURL, Timeout
+# from requests.exceptions import MissingSchema, InvalidURL, Timeout #XXX: Remove this
 from unittest import mock, TestCase
 from unittest.mock import patch
 from app.image_downloader import (
     user_prompt,
     create_repository,
+    InvalidURL,
+    ServerError,
     navigate_to_image_search_engine_url,
     create_beautifulsoup_object,
     scrape_image_urls_and_append_to_list,
     download_images,
     delete_zero_byte_images,
 )
+import urllib3
 
 # CONSTANTS
 TEMP_FILEPATH = '/home/ross/AllThingsPython/MyDev/scrape_and_tweet/temp_dir'
@@ -58,6 +61,7 @@ class TestNavigateToImageSearchEngineUrl(TestCase):
     expected.
     """
 
+    # XXX: Working, but needs to be mocked out:
     # def setUp(self):
     #     self.response_from_request = navigate_to_image_search_engine_url(
     #         IMAGE_SEARCH_ENGINE_URL,
@@ -65,31 +69,29 @@ class TestNavigateToImageSearchEngineUrl(TestCase):
     #         0
     #     )
 
-    # def test_response_from_request_is_200(self):
-    #     self.response_from_request = navigate_to_image_search_engine_url(
-    #         IMAGE_SEARCH_ENGINE_URL,
-    #         IMAGE_TO_SEARCH,
-    #         0
-    #     )
-    #     self.assertIn('200', str(self.response_from_request))
+    def test_response_from_request_is_200(self):
+        pass
+        # XXX: Working, but needs to be mocked out:
+        # self.assertIn('200', str(self.response_from_request))
 
-    def test_missing_schema_exception(self):
-        self.assertRaises(
-            MissingSchema,
-            navigate_to_image_search_engine_url,
-            'not an actual URL',
-            IMAGE_TO_SEARCH,
-            0
-        )
-
-    # def test_invalid_url_exception(self):
+    # def test_missing_schema_exception(self):
     #     self.assertRaises(
-    #         InvalidURL,
+    #         MissingSchema,
     #         navigate_to_image_search_engine_url,
     #         'not an actual URL',
     #         IMAGE_TO_SEARCH,
     #         0
     #     )
+
+    def test_invalid_url_exception(self):
+        self.assertRaises(
+            InvalidURL,
+            navigate_to_image_search_engine_url,
+            'https://notworking.url/',
+            IMAGE_TO_SEARCH,
+            0
+        )
+        
 
     def test_timeout_exception(self):
         pass

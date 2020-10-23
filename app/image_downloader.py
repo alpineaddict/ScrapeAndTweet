@@ -9,7 +9,12 @@ Search engine: https://depositphotos.com/
 import os
 import bs4
 import requests
-from requests.exceptions import MissingSchema, InvalidURL, Timeout
+# from requests.exceptions import (
+#     MissingSchema,
+#     InvalidURL,
+#     Timeout,
+#     #ConnectionError
+# )
 
 # CONSTANTS
 IMAGE_SEARCH_ENGINE_URL = 'https://depositphotos.com/stock-photos/'
@@ -34,6 +39,12 @@ def create_repository(filepath):
     os.makedirs(filepath, exist_ok=True)
     os.chdir(filepath)
 
+class InvalidURL(Exception):
+    pass
+
+class ServerError(Exception):
+    pass
+
 def navigate_to_image_search_engine_url(
         image_search_engine_url,
         image_to_search,
@@ -48,22 +59,39 @@ def navigate_to_image_search_engine_url(
         f'{image_search_engine_url}{image_to_search}.html?offset={page_index}'
     )
 
-    try:
-        response_from_request = requests.get(full_url)
-        if response_from_request.raise_for_status() == None:
-            return response_from_request
-    except MissingSchema:
-        print(
-            'Incorrect schema; missing http or https.\nExiting program. Please'
-            ' try again.'
-        )
-        # quit()
-    except InvalidURL:
-        print('URL provided is not valid.\nExiting program. Please try again.')
-        quit()
-    except Timeout:
-        print('Timeout encountered. Exiting program. Please try again.')
-        quit()
+    response_from_request = requests.get(full_url)
+    if response_from_request.raise_for_status() == None:
+        return response_from_request
+    elif response_from_request.status_code in range(400,500):
+        print(f'Error code \n{response_from_request.status_code}')
+        print('Please check URL and try again. Exiting program.')
+        raise InvalidURL
+    elif response_from_request.status_code in range(500,600):
+        print('Server error: not responding.')
+        print(f'Error code \n{response_from_request.status_code}')
+        raise ServerError
+
+    # try:
+    #     response_from_request = requests.get(full_url)
+    #     if response_from_request.raise_for_status() == None:
+    #         return response_from_request
+    # except MissingSchema:
+    #     print(
+    #         'Incorrect schema; missing http or https.\nExiting program.
+    #         'Please try again.'
+    #     )
+    #     raise MissingSchema
+    # except requests.exceptions.ConnectionError:
+    #     print('Unable to connect to specified URL.\nExiting program. Please'
+    #           ' try again'
+    #     )
+    #     raise requests.exceptions.ConnectionError
+    # except InvalidURL:
+    #     print('URL provided is not valid.\nExiting program. Please try again.')
+    #     raise InvalidURL
+    # except Timeout:
+    #     print('Timeout encountered. Exiting program. Please try again.')
+    #     raise Timeout
 
 def create_beautifulsoup_object(response_from_request):
     """
