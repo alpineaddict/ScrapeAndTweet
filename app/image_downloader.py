@@ -7,10 +7,9 @@ Search engine: https://depositphotos.com/
 """
 
 import os
-import sys
 import bs4
 import requests
-from requests.exceptions import InvalidURL, Timeout
+from requests.exceptions import MissingSchema, InvalidURL, Timeout
 
 # CONSTANTS
 IMAGE_SEARCH_ENGINE_URL = 'https://depositphotos.com/stock-photos/'
@@ -38,7 +37,7 @@ def create_repository(filepath):
 def navigate_to_image_search_engine_url(
         image_search_engine_url,
         image_to_search,
-        page_index=1
+        page_index=0
     ):
     """
     Accept image search engine, image to search and page index as paramaters.
@@ -53,12 +52,18 @@ def navigate_to_image_search_engine_url(
         response_from_request = requests.get(full_url)
         if response_from_request.raise_for_status() == None:
             return response_from_request
+    except MissingSchema:
+        print(
+            'Incorrect schema; missing http or https.\nExiting program. Please'
+            ' try again.'
+        )
+        # quit()
     except InvalidURL:
         print('URL provided is not valid.\nExiting program. Please try again.')
-        sys.exit()
+        quit()
     except Timeout:
         print('Timeout encountered. Exiting program. Please try again.')
-        sys.exit()
+        quit()
 
 def create_beautifulsoup_object(response_from_request):
     """
