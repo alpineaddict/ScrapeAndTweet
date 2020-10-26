@@ -9,12 +9,14 @@ Search engine: https://depositphotos.com/
 import os
 import bs4
 import requests
-# from requests.exceptions import (
-#     MissingSchema,
-#     InvalidURL,
-#     Timeout,
-#     #ConnectionError
-# )
+import sys
+import time
+from requests.exceptions import (
+    MissingSchema,
+    InvalidURL,
+    Timeout,
+    #ConnectionError
+)
 
 # CONSTANTS
 IMAGE_SEARCH_ENGINE_URL = 'https://depositphotos.com/stock-photos/'
@@ -45,53 +47,58 @@ class InvalidURL(Exception):
 class ServerError(Exception):
     pass
 
-def navigate_to_image_search_engine_url(
+def request_image_search_url(
         image_search_engine_url,
         image_to_search,
-        page_index=0
+        page_index=0,
+        attempts=1,
     ):
     """
-    Accept image search engine, image to search and page index as paramaters.
-    Format URL based off of parameters.
+    Accept image search engine URL, image to search and page index as 
+    paramaters. Format URL based off of parameters. Return response from
+    requests.get() on URL.
     """
 
     full_url = (
         f'{image_search_engine_url}{image_to_search}.html?offset={page_index}'
     )
+    response_from_request = None
+    attempts_left = attempts
 
-    response_from_request = requests.get(full_url)
-    if response_from_request.raise_for_status() == None:
+    while attempts_left >= attempts:
+        attempts_left -= 1
+        try:
+            response_from_request = requests.get(full_url)
+        except InvalidURL:
+            print(
+                f'Invalid URL: "{full_url}"\nExiting program. Please try again.'
+            )
+            break
+        except Timeout:
+            print(
+                f'Timeout encountered, retrying. Attempts left: {attempts_left}'
+            )
+            time.sleep(10)
+            continue
+        except Exception as e:
+            print(f'Something went wrong. Error message: "{e}"')
+            break
+        
+    if not response_from_request:
+        print('Did not receive a response from request. Exiting program.')
+        sys.exit()
+
+    retval = response_from_request.status_code
+    if retval == 200:
         return response_from_request
-    elif response_from_request.status_code in range(400,500):
-        print(f'Error code \n{response_from_request.status_code}')
-        print('Please check URL and try again. Exiting program.')
-        raise InvalidURL
-    elif response_from_request.status_code in range(500,600):
-        print('Server error: not responding.')
-        print(f'Error code \n{response_from_request.status_code}')
-        raise ServerError
-
-    # try:
-    #     response_from_request = requests.get(full_url)
-    #     if response_from_request.raise_for_status() == None:
-    #         return response_from_request
-    # except MissingSchema:
-    #     print(
-    #         'Incorrect schema; missing http or https.\nExiting program.
-    #         'Please try again.'
-    #     )
-    #     raise MissingSchema
-    # except requests.exceptions.ConnectionError:
-    #     print('Unable to connect to specified URL.\nExiting program. Please'
-    #           ' try again'
-    #     )
-    #     raise requests.exceptions.ConnectionError
-    # except InvalidURL:
-    #     print('URL provided is not valid.\nExiting program. Please try again.')
-    #     raise InvalidURL
-    # except Timeout:
-    #     print('Timeout encountered. Exiting program. Please try again.')
-    #     raise Timeout
+    elif retval >= 400 and retval < 500:
+        print(
+            f'There was an error with your request. Status code: {retval}'
+        )
+        sys.exit()
+    elif retval >= 500:
+        print(f'Server encountered an error. Status code: {retval}')
+        sys.exit()
 
 def create_beautifulsoup_object(response_from_request):
     """
@@ -139,6 +146,7 @@ def delete_zero_byte_images():
         if os.path.getsize(file) == 0:
             os.remove(file)
 
+def 
 
 if __name__ == "__main__":
     print('Welcome to Image Downloader!')
@@ -151,7 +159,7 @@ if __name__ == "__main__":
     # run loop 4 times; offset needs to increase in increments of 100
     print('Downloading images. This may take a few minutes...')
     for iter in range(0, 400, 100):
-        response_from_request = navigate_to_image_search_engine_url(
+        response_from_request = request_image_search_url(
             IMAGE_SEARCH_ENGINE_URL, image_to_search, iter
         )
         soup = create_beautifulsoup_object(response_from_request)
