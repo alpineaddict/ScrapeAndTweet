@@ -11,12 +11,7 @@ import bs4
 import requests
 import sys
 import time
-from requests.exceptions import (
-    MissingSchema,
-    InvalidURL,
-    Timeout,
-    #ConnectionError
-)
+from requests.exceptions import InvalidURL, Timeout
 
 # CONSTANTS
 IMAGE_SEARCH_ENGINE_URL = 'https://depositphotos.com/stock-photos/'
@@ -40,12 +35,6 @@ def create_repository(filepath):
 
     os.makedirs(filepath, exist_ok=True)
     os.chdir(filepath)
-
-class InvalidURL(Exception):
-    pass
-
-class ServerError(Exception):
-    pass
 
 def request_image_search_url(
         image_search_engine_url,
@@ -145,8 +134,6 @@ def delete_zero_byte_images():
     for file in os.listdir():
         if os.path.getsize(file) == 0:
             os.remove(file)
-
-def 
 
 if __name__ == "__main__":
     print('Welcome to Image Downloader!')
