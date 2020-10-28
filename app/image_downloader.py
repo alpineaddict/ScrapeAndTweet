@@ -46,15 +46,7 @@ def request_image_search_url(
     Accept image search engine URL, image to search and page index as 
     paramaters. Format URL based off of parameters. Return response from
     requests.get() on URL.
-    """
-
-    full_url = (
-        f'{image_search_engine_url}{image_to_search}.html?offset={page_index}'
-    )
-    response_from_request = None
-    attempts_left = attempts
-
-    while attempts_left >= attempts:
+    """request_image_search_url 
         attempts_left -= 1
         try:
             response_from_request = requests.get(full_url)
@@ -62,7 +54,7 @@ def request_image_search_url(
             print(
                 f'Invalid URL: "{full_url}"\nExiting program. Please try again.'
             )
-            breakmock = Mock(spec=3)
+            break
         except Timeout:
             print(
                 f'Timeout encountered, retrying. Attempts left: {attempts_left}'

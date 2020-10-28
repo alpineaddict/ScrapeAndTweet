@@ -10,3 +10,4 @@ env*
 .vscode
 .vscode*
 *cache
+tests/*sample*
