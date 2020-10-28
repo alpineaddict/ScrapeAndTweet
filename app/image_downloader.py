@@ -62,7 +62,7 @@ def request_image_search_url(
             print(
                 f'Invalid URL: "{full_url}"\nExiting program. Please try again.'
             )
-            break
+            breakmock = Mock(spec=3)
         except Timeout:
             print(
                 f'Timeout encountered, retrying. Attempts left: {attempts_left}'
@@ -72,7 +72,7 @@ def request_image_search_url(
         except Exception as e:
             print(f'Something went wrong. Error message: "{e}"')
             break
-        
+
     if not response_from_request:
         print('Did not receive a response from request. Exiting program.')
         sys.exit()
