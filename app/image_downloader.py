@@ -46,7 +46,15 @@ def request_image_search_url(
     Accept image search engine URL, image to search and page index as 
     paramaters. Format URL based off of parameters. Return response from
     requests.get() on URL.
-    """request_image_search_url 
+    """
+
+    full_url = (
+        f'{image_search_engine_url}{image_to_search}.html?offset={page_index}'
+    )
+    response_from_request = None
+    attempts_left = attempts
+
+    while attempts_left >= attempts:
         attempts_left -= 1
         try:
             response_from_request = requests.get(full_url)
