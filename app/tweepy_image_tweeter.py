@@ -28,6 +28,7 @@ class TweepyAPI():
         self.access_token        = access_token
         self.access_token_secret = access_token_secret
 
+    def user_login(self):
         auth = tweepy.OAuthHandler(self.api_key, self.api_secret_key)
         auth.set_access_token(self.access_token, self.access_token_secret)
         self.api = tweepy.API(auth)
@@ -83,8 +84,7 @@ def navigate_to_image_repository(filepath):
         print('Path is invalid. Closing application')
         sys.exit()
 
-
-if __name__ == '__main__':
+def main():
     tweepy_tweet = TweepyAPI(
                             config.api_key,
                             config.api_secret_key,
@@ -92,8 +92,11 @@ if __name__ == '__main__':
                             config.access_token_secret
     )
     FILEPATH = "/home/ross/AllThingsPython/MyDev/scrape_and_tweet/image_dump/"
-
     navigate_to_image_repository(FILEPATH)
+    tweepy_tweet.user_login()
     tweepy_tweet.tweet_image()
     tweepy_tweet.delete_image()
     print('Exiting application.')
+
+if __name__ == '__main__':
+    main()

@@ -153,13 +153,13 @@ class TestDownloadImages(TestCase):
         mock_request.assert_called_once()
 
 @patch('app.image_downloader.os.remove')
-@patch('builtins.open')
+@patch('app.image_downloader.open')
 class TestDeleteZeroByteImages(TestCase):
     """
     Test that images of zero bytes in size are deleted if found.
     """
     
-    def test_delete_zero_byte_file(self, mock_open, mock_delete):
+    def test_delete_zero_byte_file(self, mock_open, mock_remove):
         with open('zero_byte_file', 'w') as zbf:
             delete_zero_byte_images()
 
