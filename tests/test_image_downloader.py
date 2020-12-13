@@ -105,7 +105,7 @@ class TestRequestImageSearchUrl(TestCase):
             with self.assertRaises(InvalidURL):
                 request_image_search_url(self.url, self.img)
             self.assertTrue(isinstance(sysexit, SystemExit))
-
+    
     def test_timeout_exception(self, mock_request):
         mock_request.side_effect = Timeout
         with self.assertRaises(SystemExit) as sysexit:
