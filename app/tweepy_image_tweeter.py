@@ -32,14 +32,15 @@ class TweepyAPI():
         auth = tweepy.OAuthHandler(self.api_key, self.api_secret_key)
         auth.set_access_token(self.access_token, self.access_token_secret)
         self.api = tweepy.API(auth)
-
-        try:
-            print("Attempting authentication...")
-            self.api.verify_credentials()
-            print("Authentication: OK")
-        except tweepy.TweepError:
+        
+        print("Attempting authentication...")
+        credential_verification = self.api.verify_credentials()
+        
+        if not credential_verification:
             print('ERROR! Authentication failure! Shutting down script.')
             sys.exit()
+        else:
+            return True
 
     def tweet_image(self):
         """
@@ -85,6 +86,7 @@ def navigate_to_image_repository(filepath):
         sys.exit()
 
 def main():
+    print(f"using api key: {config.api_key}")
     tweepy_tweet = TweepyAPI(
                             config.api_key,
                             config.api_secret_key,

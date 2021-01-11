@@ -18,7 +18,7 @@ IMAGE_SEARCH_ENGINE_URL = 'https://depositphotos.com/stock-photos/'
 
 def user_prompt():
     """
-    Prompt user to search for a set of images, and choose where to store them.
+    Prompt user to search for a set of images, and choose where  to store them.
     """
 
     image_to_search = input('What do you want to search for?\nImage search: ')
